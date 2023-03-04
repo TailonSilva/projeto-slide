@@ -1,3 +1,5 @@
+import debounce from './debounce.js';
+
 export default class Slide {
   constructor(slider, slide) {
     this.slider = document.querySelector(slider);
@@ -8,6 +10,22 @@ export default class Slide {
       movimento: 0,
       posicaoMovimento: 0,
     };
+    this.eventos = {
+      clica: '',
+      solta: '',
+      move: '',
+    };
+    this.ativado = 'ativo';
+  }
+
+  transicao(ativo) {
+    this.slide.style.transition = ativo ? '.4s' : '';
+  }
+
+  eventoOcorrido(event) {
+    this.eventos.clica = 'mousedown';
+    this.eventos.solta = 'mouseup';
+    this.eventos.move = 'mousemove';
   }
 
   movimenta(distanciaX) {
@@ -22,38 +40,117 @@ export default class Slide {
 
   // CONTROLE DOS EVENTOS
   quandoClicar(event) {
-    event.preventDefault();
     this.distancias.posicaoX = event.clientX;
-    console.log(this.distancias.posicaoX);
-    this.slider.addEventListener('mousemove', this.quandoMover);
+    this.slider.addEventListener(this.eventos.move, this.quandoMover);
+    this.transicao(false);
   }
 
   quandoMover(event) {
+    event.preventDefault();
     const posicaoFinal = this.atualizaPosicao(event.clientX);
     this.movimenta(posicaoFinal);
   }
 
-  quandoSoltar() {
-    this.slider.removeEventListener('mousemove', this.quandoMover);
+  quandoSoltar(event) {
+    this.slider.removeEventListener(this.eventos.move, this.quandoMover);
     this.distancias.posicaoFinal = this.distancias.posicaoMovimento;
-    console.log(this.distancias.posicaoFinal);
+    this.trocaSlideQuandoSoltar();
+    this.transicao(true);
+  }
+
+  trocaSlideQuandoSoltar() {
+    if (this.distancias.movimento > 120 && this.index.proximo !== undefined) {
+      this.ativarProximoSlide();
+    } else if (
+      this.distancias.movimento < -120 &&
+      this.index.antes !== undefined
+    ) {
+      this.ativarAnteriorSlide();
+    } else {
+      this.mudaSlide(this.index.atual);
+    }
   }
 
   // ADICIONANDO OS EVENTOS
   addEventos() {
-    this.slider.addEventListener('mousedown', this.quandoClicar);
-    this.slider.addEventListener('mouseup', this.quandoSoltar);
+    this.slider.addEventListener(this.eventos.clica, this.quandoClicar);
+    this.slider.addEventListener(this.eventos.solta, this.quandoSoltar);
+  }
+
+  //CONFIGURAÇÃO DOS SLIDES
+  posicaoSlide(slide) {
+    const margin = (this.slider.offsetWidth - slide.offsetWidth) / 2;
+    return -(slide.offsetLeft - margin);
+  }
+
+  configuracaoSlides() {
+    this.slideArray = [...this.slide.children].map((elemento) => {
+      const posicao = this.posicaoSlide(elemento);
+      return { elemento, posicao };
+    });
+  }
+
+  slideIndexNav(index) {
+    const ultimoSlide = this.slideArray.length - 1;
+    this.index = {
+      antes: index ? index - 1 : undefined,
+      atual: index,
+      proximo: index === ultimoSlide ? undefined : index + 1,
+    };
+  }
+
+  mudaSlide(index) {
+    const slideAtivo = this.slideArray[index];
+    this.movimenta(slideAtivo.posicao);
+    this.slideIndexNav(index);
+    this.distancias.posicaoFinal = slideAtivo.posicao;
+    this.transicao(true);
+    this.classAtivo();
+  }
+
+  classAtivo() {
+    this.slideArray.forEach((item) =>
+      item.elemento.classList.remove(this.ativado),
+    );
+    this.slideArray[this.index.atual].elemento.classList.add(this.ativado);
+  }
+
+  //NAVEGAÇÃO DE SLIDES
+  ativarAnteriorSlide() {
+    if (this.index.antes !== undefined) this.mudaSlide(this.index.antes);
+  }
+
+  ativarProximoSlide() {
+    if (this.index.proximo !== undefined) this.mudaSlide(this.index.proximo);
+  }
+
+  //EVENTO DE RESIZE
+
+  redimencionarTela(event) {
+    setTimeout(() => {
+      this.configuracaoSlides();
+      this.mudaSlide(this.index.atual);
+    }, 500);
+  }
+
+  eventoRedimencionarTela(event) {
+    window.addEventListener('resize', this.redimencionarTela);
   }
 
   bindDosEventos() {
+    this.eventoOcorrido = this.eventoOcorrido.bind(this);
     this.quandoClicar = this.quandoClicar.bind(this);
     this.quandoMover = this.quandoMover.bind(this);
     this.quandoSoltar = this.quandoSoltar.bind(this);
+    this.redimencionarTela = debounce(this.redimencionarTela.bind(this), 200);
   }
 
   inicio() {
+    this.eventoOcorrido();
     this.bindDosEventos();
     this.addEventos();
+    this.configuracaoSlides();
+    this.eventoRedimencionarTela();
     return this;
   }
 }
