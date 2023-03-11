@@ -16,6 +16,7 @@ class Slide {
       move: '',
     };
     this.ativado = 'ativo';
+    this.mudaEvento = new Event('mudaEvento');
   }
 
   transicao(ativo) {
@@ -106,6 +107,7 @@ class Slide {
     this.distancias.posicaoFinal = slideAtivo.posicao;
     this.transicao(true);
     this.classAtivo();
+    this.slider.dispatchEvent(this.mudaEvento);
   }
 
   classAtivo() {
@@ -159,6 +161,11 @@ class Slide {
 }
 
 export default class NavegacaoSlide extends Slide {
+  constructor(slider, slide) {
+    super(slider, slide);
+    this.bindDosControles();
+  }
+
   adicinarNavegacao(antes, proximo) {
     this.elementoAnterior = document.querySelector(antes);
     this.elementoProximo = document.querySelector(proximo);
@@ -168,5 +175,46 @@ export default class NavegacaoSlide extends Slide {
   eventosNavegacao() {
     this.elementoAnterior.addEventListener('click', this.ativarAnteriorSlide);
     this.elementoProximo.addEventListener('click', this.ativarProximoSlide);
+  }
+
+  criarControles() {
+    const controle = document.createElement('ul');
+    controle.dataset.control = 'slide';
+    this.slideArray.forEach((item, index) => {
+      controle.innerHTML += `<li><a href='#slide${index + 1}'>${
+        index + 1
+      }</a></li>`;
+    });
+    this.slider.appendChild(controle);
+    return controle;
+  }
+
+  controleEventos(item, index) {
+    item.addEventListener('click', (event) => {
+      event.preventDefault;
+      this.mudaSlide(index);
+    });
+    this.slider.addEventListener('mudaEvento', this.ativaClasseDoControle);
+  }
+
+  ativaClasseDoControle() {
+    this.controleArray.forEach((item) => {
+      item.classList.remove(this.ativado);
+    });
+    this.controleArray[this.index.atual].classList.add(this.ativado);
+  }
+
+  addControles(novoControle) {
+    this.controle =
+      document.querySelector(novoControle) || this.criarControles();
+    this.controleArray = [...this.controle.children];
+
+    this.ativaClasseDoControle();
+    this.controleArray.forEach(this.controleEventos);
+  }
+
+  bindDosControles() {
+    this.controleEventos = this.controleEventos.bind(this);
+    this.ativaClasseDoControle = this.ativaClasseDoControle.bind(this);
   }
 }
