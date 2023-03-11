@@ -1,6 +1,6 @@
 import debounce from './debounce.js';
 
-export default class Slide {
+class Slide {
   constructor(slider, slide) {
     this.slider = document.querySelector(slider);
     this.slide = document.querySelector(slide);
@@ -143,6 +143,8 @@ export default class Slide {
     this.quandoMover = this.quandoMover.bind(this);
     this.quandoSoltar = this.quandoSoltar.bind(this);
     this.redimencionarTela = debounce(this.redimencionarTela.bind(this), 200);
+    this.ativarAnteriorSlide = this.ativarAnteriorSlide.bind(this);
+    this.ativarProximoSlide = this.ativarProximoSlide.bind(this);
   }
 
   inicio() {
@@ -151,6 +153,20 @@ export default class Slide {
     this.addEventos();
     this.configuracaoSlides();
     this.eventoRedimencionarTela();
+    this.mudaSlide(0);
     return this;
+  }
+}
+
+export default class NavegacaoSlide extends Slide {
+  adicinarNavegacao(antes, proximo) {
+    this.elementoAnterior = document.querySelector(antes);
+    this.elementoProximo = document.querySelector(proximo);
+    this.eventosNavegacao();
+  }
+
+  eventosNavegacao() {
+    this.elementoAnterior.addEventListener('click', this.ativarAnteriorSlide);
+    this.elementoProximo.addEventListener('click', this.ativarProximoSlide);
   }
 }

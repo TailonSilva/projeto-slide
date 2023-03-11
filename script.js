@@ -1,6 +1,5 @@
-import Slide from './js/slide.js';
+import NavegacaoSlide from './js/slide.js';
 
-const slide = new Slide('.slider', '.slide');
+const slide = new NavegacaoSlide('.slider', '.slide');
 slide.inicio();
-
-slide.mudaSlide(1);
+slide.adicinarNavegacao('.anterior', '.proximo');
