@@ -11,11 +11,12 @@ class Slide {
       posicaoMovimento: 0,
     };
     this.eventos = {
-      clica: '',
-      solta: '',
-      move: '',
+      clica: 'mousedown',
+      solta: 'mouseup',
+      move: 'mousemove',
     };
     this.ativado = 'ativo';
+    this.recebePosicaoX = '';
     this.mudaEvento = new Event('mudaEvento');
   }
 
@@ -24,9 +25,11 @@ class Slide {
   }
 
   eventoOcorrido(event) {
-    this.eventos.clica = 'mousedown';
-    this.eventos.solta = 'mouseup';
-    this.eventos.move = 'mousemove';
+    if (event.type === 'mousedown') {
+      console.log('Mouse');
+    } else if (event.type === 'touchstart') {
+      console.log('Touch');
+    }
   }
 
   movimenta(distanciaX) {
@@ -41,6 +44,7 @@ class Slide {
 
   // CONTROLE DOS EVENTOS
   quandoClicar(event) {
+    this.eventoOcorrido(event);
     this.distancias.posicaoX = event.clientX;
     this.slider.addEventListener(this.eventos.move, this.quandoMover);
     this.transicao(false);
@@ -48,7 +52,8 @@ class Slide {
 
   quandoMover(event) {
     event.preventDefault();
-    const posicaoFinal = this.atualizaPosicao(event.clientX);
+    this.recebeX = event.clientX;
+    const posicaoFinal = this.atualizaPosicao(this.recebeX);
     this.movimenta(posicaoFinal);
   }
 
@@ -150,7 +155,6 @@ class Slide {
   }
 
   inicio() {
-    this.eventoOcorrido();
     this.bindDosEventos();
     this.addEventos();
     this.configuracaoSlides();
@@ -211,8 +215,6 @@ export default class NavegacaoSlide extends Slide {
 
     this.ativaClasseDoControle();
     this.controleArray.forEach(this.controleEventos);
-
-    console.log(this.slider);
   }
 
   bindDosControles() {
