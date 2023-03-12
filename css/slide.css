@@ -35,11 +35,27 @@ img {
   max-width: 800px;
   margin: 0 20px;
   transition: 0.4s;
+  height: auto;
 
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+
+  position: relative;
+  display: flex;
+
+
 }
+
+.slide p {
+  position: absolute;
+  bottom: 60px;
+  font-size: 34px;
+  text-align: center;
+  background-color: rgba(15,200,150,0.3);
+  margin: auto 40px;
+}
+
 
 .slide li.ativo {
   opacity: 1;
@@ -75,7 +91,7 @@ img {
   justify-items: center;
   width: 100%;
   height: 100%;
-  z-index: -10;
+  z-index: 1;
 }
 
 .navegacao div {

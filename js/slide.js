@@ -16,20 +16,11 @@ class Slide {
       move: 'mousemove',
     };
     this.ativado = 'ativo';
-    this.recebePosicaoX = '';
     this.mudaEvento = new Event('mudaEvento');
   }
 
   transicao(ativo) {
     this.slide.style.transition = ativo ? '.4s' : '';
-  }
-
-  eventoOcorrido(event) {
-    if (event.type === 'mousedown') {
-      console.log('Mouse');
-    } else if (event.type === 'touchstart') {
-      console.log('Touch');
-    }
   }
 
   movimenta(distanciaX) {
@@ -44,7 +35,6 @@ class Slide {
 
   // CONTROLE DOS EVENTOS
   quandoClicar(event) {
-    this.eventoOcorrido(event);
     this.distancias.posicaoX = event.clientX;
     this.slider.addEventListener(this.eventos.move, this.quandoMover);
     this.transicao(false);
@@ -52,8 +42,7 @@ class Slide {
 
   quandoMover(event) {
     event.preventDefault();
-    this.recebeX = event.clientX;
-    const posicaoFinal = this.atualizaPosicao(this.recebeX);
+    const posicaoFinal = this.atualizaPosicao(event.clientX);
     this.movimenta(posicaoFinal);
   }
 
@@ -145,7 +134,6 @@ class Slide {
   }
 
   bindDosEventos() {
-    this.eventoOcorrido = this.eventoOcorrido.bind(this);
     this.quandoClicar = this.quandoClicar.bind(this);
     this.quandoMover = this.quandoMover.bind(this);
     this.quandoSoltar = this.quandoSoltar.bind(this);
