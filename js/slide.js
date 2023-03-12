@@ -211,6 +211,8 @@ export default class NavegacaoSlide extends Slide {
 
     this.ativaClasseDoControle();
     this.controleArray.forEach(this.controleEventos);
+
+    console.log(this.slider);
   }
 
   bindDosControles() {
